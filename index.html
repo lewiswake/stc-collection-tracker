@@ -702,7 +702,7 @@
 
         try {
           // A. Fetch the Master Catalog (from your local JSON file)
-          const response = await fetch("collection.json");
+          const response = await fetch("./collection.json");
           const catalogData = await response.json();
 
           // B. Fetch your Personal Saved Data from Firebase
