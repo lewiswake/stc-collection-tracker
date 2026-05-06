@@ -15,7 +15,7 @@
       rel="stylesheet"
     />
 
-    <!-- Firebase SDKs (Compat version for simple drop-in) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
@@ -57,14 +57,14 @@
         font-family: "Roboto", sans-serif;
         background-color: var(--bg-main);
         margin: 0;
-        padding: 0 20px 40px 20px;
+        padding: 0 12px 40px 12px; /* Reduced side padding for mobile */
         color: var(--text-main);
         transition:
           background-color 0.3s ease,
           color 0.3s ease;
       }
 
-      /* --- Top Navigation & Header --- */
+      /* --- Navigation & Header --- */
       .top-nav {
         display: flex;
         justify-content: flex-end;
@@ -73,7 +73,6 @@
         max-width: 1200px;
         margin: 0 auto;
       }
-
       .icon-btn {
         background: var(--bg-surface);
         border: 1px solid var(--border-color);
@@ -98,17 +97,16 @@
         margin-bottom: 24px;
       }
       .header h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
         margin: 0 0 8px 0;
         font-weight: 700;
       }
       .header p {
         margin: 0;
         color: var(--text-muted);
-        font-size: 1.1rem;
+        font-size: 1rem;
       }
 
-      /* Firebase Status Indicator */
       .sync-status {
         display: inline-flex;
         align-items: center;
@@ -130,26 +128,21 @@
       .bento-container {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
+        gap: 16px;
         max-width: 1200px;
         margin: 0 auto 32px auto;
       }
-
       .bento-card {
         background: var(--bg-surface);
         border-radius: 16px;
-        padding: 24px;
+        padding: 20px;
         box-shadow: var(--shadow-elevation);
         display: flex;
         flex-direction: column;
         justify-content: center;
-        transition:
-          background-color 0.3s,
-          box-shadow 0.3s;
       }
-
       .bento-title {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: var(--text-muted);
         font-weight: 700;
         text-transform: uppercase;
@@ -159,26 +152,21 @@
         align-items: center;
         gap: 6px;
       }
-
       .bento-value {
-        font-size: 2.75rem;
+        font-size: 2.2rem;
         font-weight: 700;
         margin: 0;
         color: var(--text-main);
       }
 
-      /* Bar Chart inside Bento */
       .chart-row {
-        margin-bottom: 16px;
-      }
-      .chart-row:last-child {
-        margin-bottom: 0;
+        margin-bottom: 12px;
       }
       .chart-label {
         display: flex;
         justify-content: space-between;
-        font-size: 0.9rem;
-        margin-bottom: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
         font-weight: 500;
       }
       .chart-label.owned {
@@ -196,7 +184,7 @@
       .chart-fill {
         height: 100%;
         border-radius: 4px;
-        transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        transition: width 0.8s ease-in-out;
         width: 0%;
       }
       .chart-fill.owned {
@@ -212,45 +200,50 @@
         top: 0;
         background-color: var(--bg-main);
         z-index: 100;
-        padding: 16px 0;
+        padding: 12px 0;
         margin-bottom: 24px;
         display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
+        flex-direction: column;
+        gap: 12px;
         max-width: 1200px;
         margin-left: auto;
         margin-right: auto;
         border-bottom: 1px solid var(--border-color);
-        transition: background-color 0.3s;
+      }
+      @media (min-width: 768px) {
+        .sticky-toolbar {
+          flex-direction: row;
+          justify-content: space-between;
+        }
       }
 
       .filter-group {
         display: flex;
         gap: 8px;
-        flex-wrap: wrap;
+        overflow-x: auto;
+        padding-bottom: 4px;
       }
       .control-group {
         display: flex;
-        gap: 12px;
-        flex-grow: 1;
-        justify-content: flex-end;
+        gap: 8px;
+        width: 100%;
+      }
+      @media (min-width: 768px) {
+        .control-group {
+          width: auto;
+        }
       }
 
       .filter-btn {
         background-color: var(--bg-surface);
         border: 1px solid var(--border-color);
         color: var(--text-main);
-        padding: 8px 20px;
+        padding: 8px 16px;
         border-radius: 20px;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 500;
         cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      .filter-btn:hover {
-        background-color: var(--primary-bg);
+        white-space: nowrap;
       }
       .filter-btn.active {
         background-color: var(--primary-bg);
@@ -260,27 +253,30 @@
 
       .search-input,
       .sort-select {
-        padding: 8px 16px;
+        flex-grow: 1;
+        padding: 8px 12px;
         border-radius: 20px;
         border: 1px solid var(--border-color);
         background: var(--bg-surface);
         color: var(--text-main);
-        font-family: inherit;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         outline: none;
       }
-      .search-input:focus,
-      .sort-select:focus {
-        border-color: var(--primary-color);
-      }
 
-      /* --- Gallery Grid --- */
+      /* --- UPDATED Gallery Grid (2x2 Mobile, 5x5 Desktop) --- */
       .grid-container {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 24px;
+        gap: 12px;
         max-width: 1200px;
         margin: 0 auto;
+        grid-template-columns: repeat(2, 1fr); /* 2 per row by default */
+      }
+
+      @media (min-width: 1024px) {
+        .grid-container {
+          grid-template-columns: repeat(5, 1fr); /* 5 per row on desktop */
+          gap: 20px;
+        }
       }
 
       .card {
@@ -290,15 +286,11 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        transition:
-          box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-          transform 0.2s ease,
-          background-color 0.3s;
+        transition: transform 0.2s ease;
         cursor: pointer;
         position: relative;
       }
       .card:hover {
-        box-shadow: var(--shadow-hover);
         transform: translateY(-4px);
       }
 
@@ -324,7 +316,7 @@
       }
 
       .card-content {
-        padding: 16px;
+        padding: 12px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -333,13 +325,13 @@
         text-align: left;
       }
       .issue-number {
-        font-size: 1.25rem;
+        font-size: 1rem;
         font-weight: 700;
-        margin: 0 0 4px 0;
+        margin: 0 0 2px 0;
         color: var(--text-main);
       }
       .issue-date {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         color: var(--text-muted);
         margin: 0;
       }
@@ -351,15 +343,10 @@
         cursor: pointer;
         display: flex;
         align-items: center;
-        justify-content: center;
         border-radius: 50%;
-        transition: transform 0.2s;
-      }
-      .status-toggle-btn:hover {
-        transform: scale(1.15);
       }
       .material-symbols-rounded {
-        font-size: 32px;
+        font-size: 28px;
       }
       .icon-owned {
         color: var(--success-color);
@@ -370,13 +357,13 @@
 
       .condition-badge {
         position: absolute;
-        top: 10px;
-        left: 10px;
+        top: 8px;
+        left: 8px;
         background: rgba(0, 0, 0, 0.7);
         color: white;
-        padding: 4px 8px;
-        border-radius: 8px;
-        font-size: 0.8rem;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.7rem;
         font-weight: bold;
       }
 
@@ -384,11 +371,11 @@
         grid-column: 1 / -1;
         text-align: center;
         color: var(--text-muted);
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         padding: 40px;
       }
 
-      /* --- Modal --- */
+      /* --- Modal Styling --- */
       .modal-overlay {
         position: fixed;
         top: 0;
@@ -408,10 +395,9 @@
         opacity: 1;
         pointer-events: all;
       }
-
       .modal-box {
         background: var(--bg-surface);
-        padding: 32px;
+        padding: 24px;
         border-radius: 16px;
         width: 90%;
         max-width: 400px;
@@ -422,40 +408,32 @@
       .modal-overlay.active .modal-box {
         transform: translateY(0);
       }
-
       .modal-header {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         font-weight: 700;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
         color: var(--text-main);
       }
-
       .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
       }
       .form-group label {
         display: block;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         font-weight: 500;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: var(--text-muted);
       }
       .form-input {
         width: 100%;
         box-sizing: border-box;
-        padding: 12px;
+        padding: 10px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
         background: var(--bg-main);
         color: var(--text-main);
         font-family: inherit;
-        resize: vertical;
       }
-      .form-input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-      }
-
       .checkbox-group {
         display: flex;
         align-items: center;
@@ -463,23 +441,11 @@
         cursor: pointer;
         user-select: none;
       }
-      .checkbox-group input {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-      }
-      .checkbox-group label {
-        font-weight: 700;
-        color: var(--text-main);
-        cursor: pointer;
-        margin: 0;
-      }
-
       .modal-actions {
         display: flex;
         justify-content: flex-end;
         gap: 12px;
-        margin-top: 30px;
+        margin-top: 24px;
       }
       .btn-cancel {
         background: transparent;
@@ -490,32 +456,24 @@
         padding: 8px 16px;
         border-radius: 8px;
       }
-      .btn-cancel:hover {
-        background: var(--border-color);
-      }
       .btn-save {
         background: var(--primary-color);
         color: white;
         border: none;
         font-weight: 500;
         cursor: pointer;
-        padding: 8px 24px;
+        padding: 8px 20px;
         border-radius: 8px;
-      }
-      .btn-save:hover {
-        filter: brightness(1.1);
       }
     </style>
   </head>
   <body>
-    <!-- Top Action Nav -->
     <div class="top-nav">
       <button class="icon-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
         <span class="material-symbols-rounded" id="theme-icon">dark_mode</span>
       </button>
     </div>
 
-    <!-- Header -->
     <div class="header">
       <h1>Sonic the Comic Collection</h1>
       <p>Interactive Database & Tracker</p>
@@ -527,11 +485,10 @@
       </div>
     </div>
 
-    <!-- Bento Box Dashboard -->
     <div class="bento-container">
       <div class="bento-card">
         <h3 class="bento-title">
-          <span class="material-symbols-rounded" style="font-size: 20px"
+          <span class="material-symbols-rounded" style="font-size: 18px"
             >library_books</span
           >
           Collection Status
@@ -540,7 +497,7 @@
       </div>
       <div class="bento-card">
         <h3 class="bento-title">
-          <span class="material-symbols-rounded" style="font-size: 20px"
+          <span class="material-symbols-rounded" style="font-size: 18px"
             >donut_large</span
           >
           Completion
@@ -567,7 +524,6 @@
       </div>
     </div>
 
-    <!-- Sticky Toolbar: Filters, Search, Sort -->
     <div class="sticky-toolbar">
       <div class="filter-group">
         <button
@@ -575,7 +531,7 @@
           data-filter="all"
           onclick="setFilter('all')"
         >
-          All Issues
+          All
         </button>
         <button
           class="filter-btn"
@@ -597,27 +553,24 @@
           type="text"
           id="searchInput"
           class="search-input"
-          placeholder="Search Issue #..."
+          placeholder="Search..."
           oninput="handleSearch()"
         />
         <select id="sortSelect" class="sort-select" onchange="handleSort()">
-          <option value="issue-asc">Issue (1 → 223)</option>
-          <option value="issue-desc">Issue (223 → 1)</option>
-          <option value="date-asc">Date (Oldest First)</option>
-          <option value="date-desc">Date (Newest First)</option>
+          <option value="issue-asc">Issue (Low-High)</option>
+          <option value="issue-desc">Issue (High-Low)</option>
+          <option value="date-asc">Date (Oldest)</option>
+          <option value="date-desc">Date (Newest)</option>
         </select>
       </div>
     </div>
 
-    <!-- Gallery Grid -->
     <div class="grid-container" id="collection-grid"></div>
 
-    <!-- Editing Modal -->
     <div class="modal-overlay" id="editModal">
       <div class="modal-box">
         <div class="modal-header" id="modalTitle">Edit Issue</div>
         <input type="hidden" id="modalIssueId" />
-
         <div
           class="form-group checkbox-group"
           onclick="document.getElementById('modalOwned').click()"
@@ -629,69 +582,42 @@
           />
           <label for="modalOwned">I own this issue</label>
         </div>
-
         <div class="form-group">
-          <label for="modalCondition">Condition (out of 10)</label>
+          <label for="modalCondition">Condition (/10)</label>
           <input
             type="number"
             id="modalCondition"
             class="form-input"
             min="0"
             max="10"
-            placeholder="e.g. 8"
           />
         </div>
-
         <div class="form-group">
-          <label for="modalNotes"
-            >Notes (Price paid, free gifts included, etc.)</label
-          >
-          <textarea
-            id="modalNotes"
-            class="form-input"
-            rows="3"
-            placeholder="Add custom notes here..."
-          ></textarea>
+          <label for="modalNotes">Notes</label>
+          <textarea id="modalNotes" class="form-input" rows="3"></textarea>
         </div>
-
         <div class="modal-actions">
           <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-          <button class="btn-save" onclick="saveModal()">Save Changes</button>
+          <button class="btn-save" onclick="saveModal()">Save</button>
         </div>
       </div>
     </div>
 
     <script>
-      // ==========================================
-      // 1. FIREBASE CONFIGURATION
-      // PASTE YOUR KEYS HERE FROM THE FIREBASE CONSOLE
-      // ==========================================
       const firebaseConfig = {
         apiKey: "AIzaSyACDtRRsjhg-S0rEtfZ0SuUUh0NyW7uLRY",
-
         authDomain: "sonictracker-efecb.firebaseapp.com",
-
         projectId: "sonictracker-efecb",
-
         storageBucket: "sonictracker-efecb.firebasestorage.app",
-
         messagingSenderId: "877189918893",
-
         appId: "1:877189918893:web:e8191636bc07fb47569624",
-
         measurementId: "G-GY020ZPS9C",
       };
 
-      // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
-
-      // We will store all user data in a collection called 'user_comics'
       const collectionRef = db.collection("user_comics");
 
-      // ==========================================
-      // 2. CORE APPLICATION LOGIC
-      // ==========================================
       let allComics = [];
       let currentFilter = "all";
       let currentSearch = "";
@@ -699,28 +625,20 @@
 
       async function initializeApp() {
         initTheme();
-
         try {
-          // A. Fetch the Master Catalog (from your local JSON file)
           const response = await fetch("./collection.json");
           const catalogData = await response.json();
-
-          // B. Fetch your Personal Saved Data from Firebase
           const snapshot = await collectionRef.get();
           const firebaseData = {};
-
-          // Map Firebase data by Issue Number so we can merge it quickly
           snapshot.forEach((doc) => {
             firebaseData[doc.id] = doc.data();
           });
 
-          // C. Merge the two!
           allComics = catalogData.map((comic) => {
             const fbRecord = firebaseData[comic.issue.toString()];
             return {
               ...comic,
-              // If Firebase has a record, use it. Otherwise, fallback to the JSON's 'owned' state
-              owned: fbRecord ? fbRecord.owned : comic.owned,
+              owned: fbRecord ? fbRecord.owned : false,
               condition: fbRecord ? fbRecord.condition : null,
               notes: fbRecord ? fbRecord.notes : null,
             };
@@ -729,43 +647,32 @@
           updateSyncStatus("Online", true);
           processAndRender();
         } catch (error) {
-          console.error("Error loading data:", error);
-          updateSyncStatus("Offline / Error connecting", false);
-
-          document.getElementById("collection-grid").innerHTML = `
-            <p class="empty-message">⚠️ Could not load data.<br>Make sure you replaced the Firebase keys and are running a local web server.</p>`;
+          updateSyncStatus("Offline / Error", false);
+          document.getElementById("collection-grid").innerHTML =
+            `<p class="empty-message">⚠️ Error loading data.</p>`;
         }
       }
 
       function updateSyncStatus(msg, isOnline) {
         const indicator = document.getElementById("syncIndicator");
         indicator.innerHTML = `<span class="material-symbols-rounded" style="font-size: 18px;">${isOnline ? "cloud_done" : "cloud_off"}</span> ${msg}`;
-        if (!isOnline) {
-          indicator.classList.add("offline");
-        } else {
-          indicator.classList.remove("offline");
-        }
+        isOnline
+          ? indicator.classList.remove("offline")
+          : indicator.classList.add("offline");
       }
 
-      // --- Writing to Firebase ---
       async function saveToFirebase(issueNum, dataObj) {
         try {
           updateSyncStatus("Saving...", true);
-          // Save the specific issue document. We use set() with merge:true so it creates it if it doesn't exist
           await collectionRef
             .doc(issueNum.toString())
             .set(dataObj, { merge: true });
           updateSyncStatus("Online & Saved", true);
         } catch (error) {
-          console.error("Error writing to Firebase:", error);
-          updateSyncStatus("Error Saving Data", false);
-          alert(
-            "Failed to save to database. Check your Firebase security rules.",
-          );
+          updateSyncStatus("Error Saving", false);
         }
       }
 
-      // --- Processing (Filter, Search, Sort) ---
       function setFilter(filterType) {
         currentFilter = filterType;
         document
@@ -783,7 +690,6 @@
           .value.toLowerCase();
         processAndRender();
       }
-
       function handleSort() {
         currentSort = document.getElementById("sortSelect").value;
         processAndRender();
@@ -808,37 +714,26 @@
         processedData.sort((a, b) => {
           if (currentSort === "issue-asc") return a.issue - b.issue;
           if (currentSort === "issue-desc") return b.issue - a.issue;
-
-          if (currentSort.includes("date")) {
-            if (a.date === "Date TBD" && b.date !== "Date TBD") return 1;
-            if (b.date === "Date TBD" && a.date !== "Date TBD") return -1;
-            if (a.date === b.date) return 0;
-
-            const dateA = new Date(a.date);
-            const dateB = new Date(b.date);
-            return currentSort === "date-asc" ? dateA - dateB : dateB - dateA;
-          }
-          return 0;
+          const dateA = new Date(a.date === "Date TBD" ? "1900-01-01" : a.date);
+          const dateB = new Date(b.date === "Date TBD" ? "1900-01-01" : b.date);
+          return currentSort === "date-asc" ? dateA - dateB : dateB - dateA;
         });
 
         updateDashboard();
         renderGrid(processedData);
       }
 
-      // --- Rendering UI ---
       function updateDashboard() {
-        if (!allComics || allComics.length === 0) return;
+        if (!allComics.length) return;
         const total = allComics.length;
         const owned = allComics.filter((c) => c.owned).length;
         const missing = total - owned;
-        const percentage = ((owned / total) * 100).toFixed(1);
+        const pct = ((owned / total) * 100).toFixed(1);
 
         document.getElementById("stat-owned").innerText = `${owned} / ${total}`;
-        document.getElementById("stat-pct").innerText =
-          `${percentage.endsWith(".0") ? Math.round(percentage) : percentage}%`;
+        document.getElementById("stat-pct").innerText = `${pct}%`;
         document.getElementById("chart-val-owned").innerText = owned;
         document.getElementById("chart-val-missing").innerText = missing;
-
         setTimeout(() => {
           document.getElementById("chart-fill-owned").style.width =
             `${(owned / total) * 100}%`;
@@ -849,47 +744,34 @@
 
       function renderGrid(comicsArray) {
         const grid = document.getElementById("collection-grid");
-        if (comicsArray.length === 0) {
-          grid.innerHTML =
-            '<p class="empty-message">No issues found matching your criteria.</p>';
+        if (!comicsArray.length) {
+          grid.innerHTML = '<p class="empty-message">No issues found.</p>';
           return;
         }
 
-        let htmlString = "";
-        comicsArray.forEach((comic) => {
-          const isOwned = comic.owned;
-          const iconClass = isOwned ? "icon-owned" : "icon-missing";
-          const iconName = isOwned ? "check_circle" : "cancel";
-          const imgWashoutClass = isOwned ? "" : "img-missing";
-
-          let conditionHTML = "";
-          if (isOwned && comic.condition) {
-            conditionHTML = `<div class="condition-badge">${comic.condition}/10</div>`;
-          }
-
-          htmlString += `
+        grid.innerHTML = comicsArray
+          .map((comic) => {
+            const isOwned = comic.owned;
+            return `
             <div class="card" onclick="openModal(${comic.issue})">
-                ${conditionHTML}
-                <img data-src="${comic.coverUrl}" alt="Issue ${comic.issue}" class="card-image ${imgWashoutClass}">
+                ${isOwned && comic.condition ? `<div class="condition-badge">${comic.condition}/10</div>` : ""}
+                <img data-src="${comic.coverUrl}" alt="Issue ${comic.issue}" class="card-image ${isOwned ? "" : "img-missing"}">
                 <div class="card-content">
                     <div class="text-info">
-                        <h2 class="issue-number">Issue #${comic.issue}</h2>
+                        <h2 class="issue-number">#${comic.issue}</h2>
                         <p class="issue-date">${comic.date}</p>
                     </div>
-                    <button class="status-toggle-btn" title="Click to quickly toggle status" onclick="quickToggle(${comic.issue}, event)">
-                        <span class="material-symbols-rounded ${iconClass}">${iconName}</span>
+                    <button class="status-toggle-btn" onclick="quickToggle(${comic.issue}, event)">
+                        <span class="material-symbols-rounded ${isOwned ? "icon-owned" : "icon-missing"}">${isOwned ? "check_circle" : "cancel"}</span>
                     </button>
                 </div>
-            </div>
-          `;
-        });
-
-        grid.innerHTML = htmlString;
+            </div>`;
+          })
+          .join("");
         initLazyLoading();
       }
 
       function initLazyLoading() {
-        const lazyImages = document.querySelectorAll(".card-image");
         const imageObserver = new IntersectionObserver(
           (entries, observer) => {
             entries.forEach((entry) => {
@@ -903,24 +785,21 @@
           },
           { rootMargin: "0px 0px 200px 0px" },
         );
-
-        lazyImages.forEach((img) => imageObserver.observe(img));
+        document
+          .querySelectorAll(".card-image")
+          .forEach((img) => imageObserver.observe(img));
       }
 
-      // --- Interactive Features ---
       function quickToggle(issueNum, event) {
         event.stopPropagation();
         const comic = allComics.find((c) => c.issue === issueNum);
         if (comic) {
           comic.owned = !comic.owned;
-
-          // Save to Firebase
           saveToFirebase(comic.issue, {
             owned: comic.owned,
             condition: comic.condition || null,
             notes: comic.notes || null,
           });
-
           processAndRender();
         }
       }
@@ -928,14 +807,12 @@
       function openModal(issueNum) {
         const comic = allComics.find((c) => c.issue === issueNum);
         if (!comic) return;
-
         document.getElementById("modalTitle").innerText =
           `Issue #${comic.issue}`;
         document.getElementById("modalIssueId").value = comic.issue;
         document.getElementById("modalOwned").checked = comic.owned;
         document.getElementById("modalCondition").value = comic.condition || "";
         document.getElementById("modalNotes").value = comic.notes || "";
-
         document.getElementById("editModal").classList.add("active");
       }
 
@@ -948,19 +825,15 @@
           document.getElementById("modalIssueId").value,
         );
         const comic = allComics.find((c) => c.issue === issueNum);
-
         if (comic) {
           comic.owned = document.getElementById("modalOwned").checked;
           comic.condition = document.getElementById("modalCondition").value;
           comic.notes = document.getElementById("modalNotes").value;
-
-          // Save all edits to Firebase
           saveToFirebase(comic.issue, {
             owned: comic.owned,
             condition: comic.condition,
             notes: comic.notes,
           });
-
           processAndRender();
           closeModal();
         }
@@ -972,20 +845,29 @@
           if (e.target === this) closeModal();
         });
 
-      // Dark Theme Logic
+      // --- Dark Theme (System Default + Manual Override) ---
       function initTheme() {
-        const savedTheme = localStorage.getItem("stc_theme") || "light";
-        if (savedTheme === "dark") {
+        const savedTheme = localStorage.getItem("stc_theme");
+        const systemPrefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+
+        // If user explicitly saved a preference, use it. Otherwise, use system preference.
+        if (savedTheme === "dark" || (!savedTheme && systemPrefersDark)) {
           document.documentElement.setAttribute("data-theme", "dark");
           document.getElementById("theme-icon").innerText = "light_mode";
+        } else {
+          document.documentElement.removeAttribute("data-theme");
+          document.getElementById("theme-icon").innerText = "dark_mode";
         }
       }
 
       function toggleTheme() {
         const root = document.documentElement;
         const icon = document.getElementById("theme-icon");
+        const isDark = root.getAttribute("data-theme") === "dark";
 
-        if (root.getAttribute("data-theme") === "dark") {
+        if (isDark) {
           root.removeAttribute("data-theme");
           localStorage.setItem("stc_theme", "light");
           icon.innerText = "dark_mode";
@@ -996,7 +878,6 @@
         }
       }
 
-      // Boot up the Web App
       initializeApp();
     </script>
   </body>
