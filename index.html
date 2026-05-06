@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sonic the Comic Collection</title>
+
+    <!-- Google Fonts & Material Symbols -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0"
+      rel="stylesheet"
+    />
+
+    <!-- Firebase SDKs (Compat version for simple drop-in) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+    <style>
+      /* --- CSS Variables for Light/Dark Mode --- */
+      :root {
+        --bg-main: #f8f9fa;
+        --bg-surface: #ffffff;
+        --text-main: #202124;
+        --text-muted: #5f6368;
+        --border-color: #dadce0;
+        --primary-color: #1a73e8;
+        --primary-bg: #e8f0fe;
+        --shadow-elevation:
+          0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        --shadow-hover:
+          0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+        --success-color: #1ea362;
+        --danger-color: #d93025;
+        --modal-overlay: rgba(0, 0, 0, 0.5);
+      }
+
+      [data-theme="dark"] {
+        --bg-main: #121212;
+        --bg-surface: #1e1e1e;
+        --text-main: #e8eaed;
+        --text-muted: #9aa0a6;
+        --border-color: #3c4043;
+        --primary-color: #8ab4f8;
+        --primary-bg: #303134;
+        --shadow-elevation: 0 1px 3px rgba(0, 0, 0, 0.5);
+        --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.7);
+        --success-color: #34a853;
+        --danger-color: #ea4335;
+        --modal-overlay: rgba(0, 0, 0, 0.7);
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: var(--bg-main);
+        margin: 0;
+        padding: 0 20px 40px 20px;
+        color: var(--text-main);
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      /* --- Top Navigation & Header --- */
+      .top-nav {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding-top: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .icon-btn {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: var(--shadow-elevation);
+      }
+      .icon-btn:hover {
+        background: var(--primary-bg);
+        color: var(--primary-color);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      .header h1 {
+        font-size: 2.5rem;
+        margin: 0 0 8px 0;
+        font-weight: 700;
+      }
+      .header p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+      }
+
+      /* Firebase Status Indicator */
+      .sync-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        background: var(--primary-bg);
+        color: var(--primary-color);
+        padding: 4px 12px;
+        border-radius: 12px;
+        margin-top: 12px;
+        font-weight: 500;
+      }
+      .sync-status.offline {
+        background: #fce8e6;
+        color: var(--danger-color);
+      }
+
+      /* --- Bento Dashboard --- */
+      .bento-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto 32px auto;
+      }
+
+      .bento-card {
+        background: var(--bg-surface);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: var(--shadow-elevation);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        transition:
+          background-color 0.3s,
+          box-shadow 0.3s;
+      }
+
+      .bento-title {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .bento-value {
+        font-size: 2.75rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text-main);
+      }
+
+      /* Bar Chart inside Bento */
+      .chart-row {
+        margin-bottom: 16px;
+      }
+      .chart-row:last-child {
+        margin-bottom: 0;
+      }
+      .chart-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+        font-weight: 500;
+      }
+      .chart-label.owned {
+        color: var(--success-color);
+      }
+      .chart-label.missing {
+        color: var(--danger-color);
+      }
+      .chart-track {
+        height: 8px;
+        background: var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .chart-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        width: 0%;
+      }
+      .chart-fill.owned {
+        background: var(--success-color);
+      }
+      .chart-fill.missing {
+        background: var(--danger-color);
+      }
+
+      /* --- Sticky Toolbar --- */
+      .sticky-toolbar {
+        position: sticky;
+        top: 0;
+        background-color: var(--bg-main);
+        z-index: 100;
+        padding: 16px 0;
+        margin-bottom: 24px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.3s;
+      }
+
+      .filter-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .control-group {
+        display: flex;
+        gap: 12px;
+        flex-grow: 1;
+        justify-content: flex-end;
+      }
+
+      .filter-btn {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .filter-btn:hover {
+        background-color: var(--primary-bg);
+      }
+      .filter-btn.active {
+        background-color: var(--primary-bg);
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+      }
+
+      .search-input,
+      .sort-select {
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-surface);
+        color: var(--text-main);
+        font-family: inherit;
+        font-size: 0.95rem;
+        outline: none;
+      }
+      .search-input:focus,
+      .sort-select:focus {
+        border-color: var(--primary-color);
+      }
+
+      /* --- Gallery Grid --- */
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .card {
+        background: var(--bg-surface);
+        border-radius: 12px;
+        box-shadow: var(--shadow-elevation);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition:
+          box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+          transform 0.2s ease,
+          background-color 0.3s;
+        cursor: pointer;
+        position: relative;
+      }
+      .card:hover {
+        box-shadow: var(--shadow-hover);
+        transform: translateY(-4px);
+      }
+
+      .card-image {
+        width: 100%;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+        background-color: var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+        opacity: 0;
+        transition:
+          filter 0.3s ease,
+          opacity 0.5s ease-in-out;
+      }
+      .card-image.loaded {
+        opacity: 1;
+      }
+      .img-missing {
+        filter: grayscale(100%);
+      }
+      .card-image.img-missing.loaded {
+        opacity: 0.5;
+      }
+
+      .card-content {
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .text-info {
+        text-align: left;
+      }
+      .issue-number {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+        color: var(--text-main);
+      }
+      .issue-date {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin: 0;
+      }
+
+      .status-toggle-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: transform 0.2s;
+      }
+      .status-toggle-btn:hover {
+        transform: scale(1.15);
+      }
+      .material-symbols-rounded {
+        font-size: 32px;
+      }
+      .icon-owned {
+        color: var(--success-color);
+      }
+      .icon-missing {
+        color: var(--danger-color);
+      }
+
+      .condition-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .empty-message {
+        grid-column: 1 / -1;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 1.2rem;
+        padding: 40px;
+      }
+
+      /* --- Modal --- */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--modal-overlay);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .modal-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .modal-box {
+        background: var(--bg-surface);
+        padding: 32px;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 24px 38px rgba(0, 0, 0, 0.14);
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+      }
+      .modal-overlay.active .modal-box {
+        transform: translateY(0);
+      }
+
+      .modal-header {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: var(--text-main);
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+      }
+      .form-input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-main);
+        color: var(--text-main);
+        font-family: inherit;
+        resize: vertical;
+      }
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .checkbox-group input {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+      }
+      .checkbox-group label {
+        font-weight: 700;
+        color: var(--text-main);
+        cursor: pointer;
+        margin: 0;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 30px;
+      }
+      .btn-cancel {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-weight: 500;
+        cursor: pointer;
+        padding: 8px 16px;
+        border-radius: 8px;
+      }
+      .btn-cancel:hover {
+        background: var(--border-color);
+      }
+      .btn-save {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 8px 24px;
+        border-radius: 8px;
+      }
+      .btn-save:hover {
+        filter: brightness(1.1);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Action Nav -->
+    <div class="top-nav">
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle Dark Mode">
+        <span class="material-symbols-rounded" id="theme-icon">dark_mode</span>
+      </button>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+      <h1>Sonic the Comic Collection</h1>
+      <p>Interactive Database & Tracker</p>
+      <div id="syncIndicator" class="sync-status">
+        <span class="material-symbols-rounded" style="font-size: 18px"
+          >cloud_sync</span
+        >
+        Connecting to Firebase...
+      </div>
+    </div>
+
+    <!-- Bento Box Dashboard -->
+    <div class="bento-container">
+      <div class="bento-card">
+        <h3 class="bento-title">
+          <span class="material-symbols-rounded" style="font-size: 20px"
+            >library_books</span
+          >
+          Collection Status
+        </h3>
+        <p class="bento-value" id="stat-owned">0 / 0</p>
+      </div>
+      <div class="bento-card">
+        <h3 class="bento-title">
+          <span class="material-symbols-rounded" style="font-size: 20px"
+            >donut_large</span
+          >
+          Completion
+        </h3>
+        <p class="bento-value" id="stat-pct">0%</p>
+      </div>
+      <div class="bento-card" style="justify-content: space-evenly">
+        <div class="chart-row">
+          <div class="chart-label owned">
+            <span>Owned</span><span id="chart-val-owned">0</span>
+          </div>
+          <div class="chart-track">
+            <div class="chart-fill owned" id="chart-fill-owned"></div>
+          </div>
+        </div>
+        <div class="chart-row">
+          <div class="chart-label missing">
+            <span>Missing</span><span id="chart-val-missing">0</span>
+          </div>
+          <div class="chart-track">
+            <div class="chart-fill missing" id="chart-fill-missing"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky Toolbar: Filters, Search, Sort -->
+    <div class="sticky-toolbar">
+      <div class="filter-group">
+        <button
+          class="filter-btn active"
+          data-filter="all"
+          onclick="setFilter('all')"
+        >
+          All Issues
+        </button>
+        <button
+          class="filter-btn"
+          data-filter="owned"
+          onclick="setFilter('owned')"
+        >
+          Owned
+        </button>
+        <button
+          class="filter-btn"
+          data-filter="missing"
+          onclick="setFilter('missing')"
+        >
+          Missing
+        </button>
+      </div>
+      <div class="control-group">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Search Issue #..."
+          oninput="handleSearch()"
+        />
+        <select id="sortSelect" class="sort-select" onchange="handleSort()">
+          <option value="issue-asc">Issue (1 → 223)</option>
+          <option value="issue-desc">Issue (223 → 1)</option>
+          <option value="date-asc">Date (Oldest First)</option>
+          <option value="date-desc">Date (Newest First)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Gallery Grid -->
+    <div class="grid-container" id="collection-grid"></div>
+
+    <!-- Editing Modal -->
+    <div class="modal-overlay" id="editModal">
+      <div class="modal-box">
+        <div class="modal-header" id="modalTitle">Edit Issue</div>
+        <input type="hidden" id="modalIssueId" />
+
+        <div
+          class="form-group checkbox-group"
+          onclick="document.getElementById('modalOwned').click()"
+        >
+          <input
+            type="checkbox"
+            id="modalOwned"
+            onclick="event.stopPropagation()"
+          />
+          <label for="modalOwned">I own this issue</label>
+        </div>
+
+        <div class="form-group">
+          <label for="modalCondition">Condition (out of 10)</label>
+          <input
+            type="number"
+            id="modalCondition"
+            class="form-input"
+            min="0"
+            max="10"
+            placeholder="e.g. 8"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="modalNotes"
+            >Notes (Price paid, free gifts included, etc.)</label
+          >
+          <textarea
+            id="modalNotes"
+            class="form-input"
+            rows="3"
+            placeholder="Add custom notes here..."
+          ></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button class="btn-save" onclick="saveModal()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ==========================================
+      // 1. FIREBASE CONFIGURATION
+      // PASTE YOUR KEYS HERE FROM THE FIREBASE CONSOLE
+      // ==========================================
+      const firebaseConfig = {
+        apiKey: "AIzaSyACDtRRsjhg-S0rEtfZ0SuUUh0NyW7uLRY",
+
+        authDomain: "sonictracker-efecb.firebaseapp.com",
+
+        projectId: "sonictracker-efecb",
+
+        storageBucket: "sonictracker-efecb.firebasestorage.app",
+
+        messagingSenderId: "877189918893",
+
+        appId: "1:877189918893:web:e8191636bc07fb47569624",
+
+        measurementId: "G-GY020ZPS9C",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
+      // We will store all user data in a collection called 'user_comics'
+      const collectionRef = db.collection("user_comics");
+
+      // ==========================================
+      // 2. CORE APPLICATION LOGIC
+      // ==========================================
+      let allComics = [];
+      let currentFilter = "all";
+      let currentSearch = "";
+      let currentSort = "issue-asc";
+
+      async function initializeApp() {
+        initTheme();
+
+        try {
+          // A. Fetch the Master Catalog (from your local JSON file)
+          const response = await fetch("collection.json");
+          const catalogData = await response.json();
+
+          // B. Fetch your Personal Saved Data from Firebase
+          const snapshot = await collectionRef.get();
+          const firebaseData = {};
+
+          // Map Firebase data by Issue Number so we can merge it quickly
+          snapshot.forEach((doc) => {
+            firebaseData[doc.id] = doc.data();
+          });
+
+          // C. Merge the two!
+          allComics = catalogData.map((comic) => {
+            const fbRecord = firebaseData[comic.issue.toString()];
+            return {
+              ...comic,
+              // If Firebase has a record, use it. Otherwise, fallback to the JSON's 'owned' state
+              owned: fbRecord ? fbRecord.owned : comic.owned,
+              condition: fbRecord ? fbRecord.condition : null,
+              notes: fbRecord ? fbRecord.notes : null,
+            };
+          });
+
+          updateSyncStatus("Online", true);
+          processAndRender();
+        } catch (error) {
+          console.error("Error loading data:", error);
+          updateSyncStatus("Offline / Error connecting", false);
+
+          document.getElementById("collection-grid").innerHTML = `
+            <p class="empty-message">⚠️ Could not load data.<br>Make sure you replaced the Firebase keys and are running a local web server.</p>`;
+        }
+      }
+
+      function updateSyncStatus(msg, isOnline) {
+        const indicator = document.getElementById("syncIndicator");
+        indicator.innerHTML = `<span class="material-symbols-rounded" style="font-size: 18px;">${isOnline ? "cloud_done" : "cloud_off"}</span> ${msg}`;
+        if (!isOnline) {
+          indicator.classList.add("offline");
+        } else {
+          indicator.classList.remove("offline");
+        }
+      }
+
+      // --- Writing to Firebase ---
+      async function saveToFirebase(issueNum, dataObj) {
+        try {
+          updateSyncStatus("Saving...", true);
+          // Save the specific issue document. We use set() with merge:true so it creates it if it doesn't exist
+          await collectionRef
+            .doc(issueNum.toString())
+            .set(dataObj, { merge: true });
+          updateSyncStatus("Online & Saved", true);
+        } catch (error) {
+          console.error("Error writing to Firebase:", error);
+          updateSyncStatus("Error Saving Data", false);
+          alert(
+            "Failed to save to database. Check your Firebase security rules.",
+          );
+        }
+      }
+
+      // --- Processing (Filter, Search, Sort) ---
+      function setFilter(filterType) {
+        currentFilter = filterType;
+        document
+          .querySelectorAll(".filter-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        document
+          .querySelector(`.filter-btn[data-filter="${filterType}"]`)
+          .classList.add("active");
+        processAndRender();
+      }
+
+      function handleSearch() {
+        currentSearch = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        processAndRender();
+      }
+
+      function handleSort() {
+        currentSort = document.getElementById("sortSelect").value;
+        processAndRender();
+      }
+
+      function processAndRender() {
+        let processedData = allComics.filter((comic) => {
+          if (currentFilter === "owned" && !comic.owned) return false;
+          if (currentFilter === "missing" && comic.owned) return false;
+          return true;
+        });
+
+        if (currentSearch.trim() !== "") {
+          processedData = processedData.filter(
+            (comic) =>
+              comic.issue.toString().includes(currentSearch) ||
+              (comic.notes &&
+                comic.notes.toLowerCase().includes(currentSearch)),
+          );
+        }
+
+        processedData.sort((a, b) => {
+          if (currentSort === "issue-asc") return a.issue - b.issue;
+          if (currentSort === "issue-desc") return b.issue - a.issue;
+
+          if (currentSort.includes("date")) {
+            if (a.date === "Date TBD" && b.date !== "Date TBD") return 1;
+            if (b.date === "Date TBD" && a.date !== "Date TBD") return -1;
+            if (a.date === b.date) return 0;
+
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return currentSort === "date-asc" ? dateA - dateB : dateB - dateA;
+          }
+          return 0;
+        });
+
+        updateDashboard();
+        renderGrid(processedData);
+      }
+
+      // --- Rendering UI ---
+      function updateDashboard() {
+        if (!allComics || allComics.length === 0) return;
+        const total = allComics.length;
+        const owned = allComics.filter((c) => c.owned).length;
+        const missing = total - owned;
+        const percentage = ((owned / total) * 100).toFixed(1);
+
+        document.getElementById("stat-owned").innerText = `${owned} / ${total}`;
+        document.getElementById("stat-pct").innerText =
+          `${percentage.endsWith(".0") ? Math.round(percentage) : percentage}%`;
+        document.getElementById("chart-val-owned").innerText = owned;
+        document.getElementById("chart-val-missing").innerText = missing;
+
+        setTimeout(() => {
+          document.getElementById("chart-fill-owned").style.width =
+            `${(owned / total) * 100}%`;
+          document.getElementById("chart-fill-missing").style.width =
+            `${(missing / total) * 100}%`;
+        }, 50);
+      }
+
+      function renderGrid(comicsArray) {
+        const grid = document.getElementById("collection-grid");
+        if (comicsArray.length === 0) {
+          grid.innerHTML =
+            '<p class="empty-message">No issues found matching your criteria.</p>';
+          return;
+        }
+
+        let htmlString = "";
+        comicsArray.forEach((comic) => {
+          const isOwned = comic.owned;
+          const iconClass = isOwned ? "icon-owned" : "icon-missing";
+          const iconName = isOwned ? "check_circle" : "cancel";
+          const imgWashoutClass = isOwned ? "" : "img-missing";
+
+          let conditionHTML = "";
+          if (isOwned && comic.condition) {
+            conditionHTML = `<div class="condition-badge">${comic.condition}/10</div>`;
+          }
+
+          htmlString += `
+            <div class="card" onclick="openModal(${comic.issue})">
+                ${conditionHTML}
+                <img data-src="${comic.coverUrl}" alt="Issue ${comic.issue}" class="card-image ${imgWashoutClass}">
+                <div class="card-content">
+                    <div class="text-info">
+                        <h2 class="issue-number">Issue #${comic.issue}</h2>
+                        <p class="issue-date">${comic.date}</p>
+                    </div>
+                    <button class="status-toggle-btn" title="Click to quickly toggle status" onclick="quickToggle(${comic.issue}, event)">
+                        <span class="material-symbols-rounded ${iconClass}">${iconName}</span>
+                    </button>
+                </div>
+            </div>
+          `;
+        });
+
+        grid.innerHTML = htmlString;
+        initLazyLoading();
+      }
+
+      function initLazyLoading() {
+        const lazyImages = document.querySelectorAll(".card-image");
+        const imageObserver = new IntersectionObserver(
+          (entries, observer) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.onload = () => img.classList.add("loaded");
+                observer.unobserve(img);
+              }
+            });
+          },
+          { rootMargin: "0px 0px 200px 0px" },
+        );
+
+        lazyImages.forEach((img) => imageObserver.observe(img));
+      }
+
+      // --- Interactive Features ---
+      function quickToggle(issueNum, event) {
+        event.stopPropagation();
+        const comic = allComics.find((c) => c.issue === issueNum);
+        if (comic) {
+          comic.owned = !comic.owned;
+
+          // Save to Firebase
+          saveToFirebase(comic.issue, {
+            owned: comic.owned,
+            condition: comic.condition || null,
+            notes: comic.notes || null,
+          });
+
+          processAndRender();
+        }
+      }
+
+      function openModal(issueNum) {
+        const comic = allComics.find((c) => c.issue === issueNum);
+        if (!comic) return;
+
+        document.getElementById("modalTitle").innerText =
+          `Issue #${comic.issue}`;
+        document.getElementById("modalIssueId").value = comic.issue;
+        document.getElementById("modalOwned").checked = comic.owned;
+        document.getElementById("modalCondition").value = comic.condition || "";
+        document.getElementById("modalNotes").value = comic.notes || "";
+
+        document.getElementById("editModal").classList.add("active");
+      }
+
+      function closeModal() {
+        document.getElementById("editModal").classList.remove("active");
+      }
+
+      function saveModal() {
+        const issueNum = parseInt(
+          document.getElementById("modalIssueId").value,
+        );
+        const comic = allComics.find((c) => c.issue === issueNum);
+
+        if (comic) {
+          comic.owned = document.getElementById("modalOwned").checked;
+          comic.condition = document.getElementById("modalCondition").value;
+          comic.notes = document.getElementById("modalNotes").value;
+
+          // Save all edits to Firebase
+          saveToFirebase(comic.issue, {
+            owned: comic.owned,
+            condition: comic.condition,
+            notes: comic.notes,
+          });
+
+          processAndRender();
+          closeModal();
+        }
+      }
+
+      document
+        .getElementById("editModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeModal();
+        });
+
+      // Dark Theme Logic
+      function initTheme() {
+        const savedTheme = localStorage.getItem("stc_theme") || "light";
+        if (savedTheme === "dark") {
+          document.documentElement.setAttribute("data-theme", "dark");
+          document.getElementById("theme-icon").innerText = "light_mode";
+        }
+      }
+
+      function toggleTheme() {
+        const root = document.documentElement;
+        const icon = document.getElementById("theme-icon");
+
+        if (root.getAttribute("data-theme") === "dark") {
+          root.removeAttribute("data-theme");
+          localStorage.setItem("stc_theme", "light");
+          icon.innerText = "dark_mode";
+        } else {
+          root.setAttribute("data-theme", "dark");
+          localStorage.setItem("stc_theme", "dark");
+          icon.innerText = "light_mode";
+        }
+      }
+
+      // Boot up the Web App
+      initializeApp();
+    </script>
+  </body>
+</html>
